@@ -2,6 +2,7 @@ package com.percyvega.q_ci_carrier.application;
 
 //import com.percyvega.q_ci_carrier.jms.JMSSender;
 
+import com.percyvega.q_ci_carrier.jms.JMSSender;
 import com.percyvega.q_ci_carrier.model.IntergateTransaction;
 import com.percyvega.q_ci_carrier.model.Status;
 import com.percyvega.util.Sleeper;
@@ -13,6 +14,8 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.jms.JMSException;
+
 /**
  * Created by pevega on 2/25/2015.
  */
@@ -22,9 +25,12 @@ public class AttCarrierThread extends Thread {
     private static final Logger logger = LoggerFactory.getLogger(AttCarrierThread.class);
 
     public static final int SLEEP_WHEN_UNAVAILABLE_DESTINATION_URL = 15000;
+    public static final int SLEEP_WHEN_UNAVAILABLE_DESTINATION_QUEUE = 15000;
+
+    private static JMSSender jmsSender = new JMSSender();
+    private static RestTemplate restTemplate = new RestTemplate();
 
     private static String destinationUrl;
-    private static RestTemplate restTemplate = new RestTemplate();
     private IntergateTransaction intergateTransaction;
 
     @Value("${attDestinationUrl}")
@@ -43,8 +49,8 @@ public class AttCarrierThread extends Thread {
 
     @Override
     public void run() {
-//        JMSSender jmsSender = new JMSSender();
         int destinationUrlUnavailableCount = 0;
+        int destinationQueueUnavailableCount = 0;
         String url = getUrl(intergateTransaction.getMdn());
 
         try {
@@ -62,20 +68,17 @@ public class AttCarrierThread extends Thread {
 
             logger.debug(intergateTransaction.toString());
 
-//                        do {
-//                            try {
-//                                jmsSender.sendMessage(txs[i].toString());
-//                                isDestinationUnavailable = false;
-//                            } catch (JMSException e) {
-//                                logger.debug("Destination unavailable #" + ++destinationUnavailableCount + ". About to sleep(" + SLEEP_WHEN_UNAVAILABLE_DESTINATION + ").");
-//                                Sleeper.sleep(SLEEP_WHEN_UNAVAILABLE_SOURCE);
-//                                isDestinationUnavailable = true;
-//                            }
-//                        } while (isDestinationUnavailable);
+            do {
+                try {
+                    jmsSender.sendMessage(intergateTransaction.toString());
+                    break;
+                } catch (JMSException e) {
+                    logger.debug("Destination Queue unavailable #" + ++destinationQueueUnavailableCount + ". About to sleep(" + SLEEP_WHEN_UNAVAILABLE_DESTINATION_QUEUE + ").");
+                    Sleeper.sleep(SLEEP_WHEN_UNAVAILABLE_DESTINATION_QUEUE);
+                }
+            } while (true);
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            logger.debug("Finishing run()");
         }
 
     }
@@ -87,4 +90,9 @@ public class AttCarrierThread extends Thread {
         return builder.build().toUriString();
     }
 
+    @Override
+    protected void finalize() throws Throwable {
+        jmsSender = null;
+        restTemplate = null;
+    }
 }

@@ -96,7 +96,17 @@ public class JMSSender {
 
     public static void main(String args[]) throws JMSException {
         JMSSender jmsSender = new JMSSender();
-        for (int i = 1; i <= 10; i++)
-            jmsSender.sendMessage("This is my JMS message #" + i + "!");
+        jmsSender.setQcfName(args[0]);
+        jmsSender.setProviderUrl(args[1]);
+        jmsSender.setIcfName(args[2]);
+        jmsSender.setQueueName(args[3]);
+
+        String message;
+        for (int i = 1; i <= 10; i++) {
+            message = "This is my JMS message #" + i + "!";
+
+            logger.debug(message);
+            jmsSender.sendMessage(message);
+        }
     }
 }
