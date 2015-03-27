@@ -70,7 +70,7 @@ public class AttCarrierThread extends Thread {
 
             do {
                 try {
-                    jmsSender.sendMessage(intergateTransaction.toString());
+                    jmsSender.sendMessage(Long.toString(intergateTransaction.getObjid()), intergateTransaction.toString());
                     break;
                 } catch (JMSException e) {
                     logger.debug("Destination Queue unavailable #" + ++destinationQueueUnavailableCount + ". About to sleep(" + SLEEP_WHEN_UNAVAILABLE_DESTINATION_QUEUE + ").");
