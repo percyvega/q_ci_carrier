@@ -1,4 +1,4 @@
-package com.percyvega.q_ci_carrier.model;
+package com.percyvega.model;
 
 import java.util.Arrays;
 
@@ -9,7 +9,8 @@ public enum Status {
     QUEUED("QUEUED"),
     PICKED_UP("PICKED_UP"),
     PROCESSING("PROCESSING"),
-    PROCESSED("PROCESSED");
+    PROCESSED("PROCESSED"),
+    ERROR("ERROR");
 
     private String name;
 

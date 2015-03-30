@@ -1,7 +1,6 @@
-package com.percyvega.q_ci_carrier.model;
+package com.percyvega.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.percyvega.util.JacksonUtil;
 
 import java.util.Date;
 
@@ -117,15 +116,6 @@ public class IntergateTransaction {
     public void setUpdateDate(/*Date updateDate*/) {
 //        this.updateDate = updateDate;
         this.updateDate = new Date();
-    }
-
-    @Override
-    public String toString() {
-        return JacksonUtil.toJson(this);
-    }
-
-    public static IntergateTransaction fromString(String json) {
-        return JacksonUtil.fromJson(json);
     }
 
 }

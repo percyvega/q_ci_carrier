@@ -41,10 +41,15 @@
             <artifactId>wlthint3client</artifactId>
             <version>10.3.6</version>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <properties>
-        <start-class>com.percyvega.q_ci_carrier.application.Application</start-class>
+        <start-class>com.percyvega.application.Application</start-class>
         <!-- use UTF-8 for everything -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
