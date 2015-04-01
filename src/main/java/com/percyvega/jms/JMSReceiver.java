@@ -41,7 +41,7 @@ public class JMSReceiver implements MessageListener {
     private String qcfName;
 
     @Value("${jms.sourceQueueName}")
-    private String queueName;
+    private String sourceQueueName;
 
     @Value("${jms.providerUrl}")
     private String providerUrl;
@@ -55,7 +55,7 @@ public class JMSReceiver implements MessageListener {
             queueConnectionFactory = (QueueConnectionFactory) initialContext.lookup(qcfName);
             queueConnection = queueConnectionFactory.createQueueConnection();
             queueSession = queueConnection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
-            queue = (Queue) initialContext.lookup(queueName);
+            queue = (Queue) initialContext.lookup(sourceQueueName);
             queueReceiver = queueSession.createReceiver(queue);
             queueReceiver.setMessageListener(this);
             queueConnection.start();
@@ -131,7 +131,7 @@ public class JMSReceiver implements MessageListener {
 
     @Override
     public String toString() {
-        return "JMSReceiver [icfName=" + icfName + ", providerUrl=" + providerUrl + ", qcfName=" + qcfName + ", queueName=" + queueName + "]";
+        return "JMSReceiver [icfName=" + icfName + ", providerUrl=" + providerUrl + ", qcfName=" + qcfName + ", sourceQueueName=" + sourceQueueName + "]";
     }
 
 }

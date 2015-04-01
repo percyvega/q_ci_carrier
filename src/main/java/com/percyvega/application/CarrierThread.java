@@ -40,7 +40,7 @@ public class CarrierThread extends Thread {
         super(intergateTransaction.getObjid().toString());
 
         if(jmsSender == null)
-            throw new RuntimeException("jmsSender can not be null.");
+            throw new RuntimeException("jmsSender cannot be null.");
 
         this.destinationUrl = destinationUrl;
         this.intergateTransaction = intergateTransaction;

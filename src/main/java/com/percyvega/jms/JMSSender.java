@@ -35,7 +35,7 @@ public class JMSSender {
     private String qcfName;
 
     @Value("${jms.destinationQueueName}")
-    private String queueName;
+    private String destinationQueueName;
 
     @Value("${jms.providerUrl}")
     private String providerUrl;
@@ -49,7 +49,7 @@ public class JMSSender {
             queueConnectionFactory = (QueueConnectionFactory) initialContext.lookup(qcfName);
             queueConnection = queueConnectionFactory.createQueueConnection();
             queueSession = queueConnection.createQueueSession(false, 0);
-            queue = (Queue) initialContext.lookup(queueName);
+            queue = (Queue) initialContext.lookup(destinationQueueName);
             queueSender = queueSession.createSender(queue);
         } catch (Exception e) {
             e.printStackTrace(System.err);
@@ -83,7 +83,7 @@ public class JMSSender {
 
     @Override
     public String toString() {
-        return "JMSSender [icfName=" + icfName + ", providerUrl=" + providerUrl + ", qcfName=" + qcfName + ", queueName=" + queueName + "]";
+        return "JMSSender [icfName=" + icfName + ", providerUrl=" + providerUrl + ", qcfName=" + qcfName + ", destinationQueueName=" + destinationQueueName + "]";
     }
 
 }
