@@ -1,6 +1,5 @@
 package com.percyvega.application;
 
-import com.percyvega.jms.JMSReceiver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -23,9 +22,6 @@ public class Application {
         logger.debug("Starting main(" + Arrays.toString(args) + ")");
 
         SpringApplication.run(Application.class, args);
-
-        JMSReceiver jmsReceiver = new JMSReceiver();
-        jmsReceiver.init();
     }
 
 }

@@ -10,11 +10,8 @@ import com.percyvega.util.JacksonUtil;
 import com.percyvega.util.Sleeper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.jms.JMSException;
 import java.util.Date;
@@ -22,31 +19,30 @@ import java.util.Date;
 /**
  * Created by pevega on 2/25/2015.
  */
-@Component
-public class AttCarrierThread extends Thread {
+public class CarrierThread extends Thread {
 
-    private static final Logger logger = LoggerFactory.getLogger(AttCarrierThread.class);
+    private static final Logger logger = LoggerFactory.getLogger(CarrierThread.class);
 
-    public static final int SLEEP_WHEN_UNAVAILABLE_DESTINATION_URL = 15000;
-    public static final int SLEEP_WHEN_UNAVAILABLE_DESTINATION_QUEUE = 15000;
+    public static final int SLEEP_WHEN_UNAVAILABLE_DESTINATION_URL = 10000;
+    public static final int SLEEP_WHEN_UNAVAILABLE_DESTINATION_QUEUE = 10000;
 
-    private static JMSSender jmsSender = new JMSSender();
     private static RestTemplate restTemplate = new RestTemplate();
 
-    private static String destinationUrl;
+    private static JMSSender jmsSender;
+    public static void setJmsSender(JMSSender jmsSender) {
+        CarrierThread.jmsSender = jmsSender;
+    }
+
+    private String destinationUrl;
     private IntergateTransaction intergateTransaction;
 
-    @Value("${attDestinationUrl}")
-    public void setDestinationUrl(String destinationUrl) {
-        this.destinationUrl = destinationUrl;
-    }
-
-    public AttCarrierThread() {
-        super("do-not-use");
-    }
-
-    public AttCarrierThread(IntergateTransaction intergateTransaction) {
+    public CarrierThread(String destinationUrl, IntergateTransaction intergateTransaction) {
         super(intergateTransaction.getObjid().toString());
+
+        if(jmsSender == null)
+            throw new RuntimeException("jmsSender can not be null.");
+
+        this.destinationUrl = destinationUrl;
         this.intergateTransaction = intergateTransaction;
     }
 
@@ -54,7 +50,6 @@ public class AttCarrierThread extends Thread {
     public void run() {
         try {
             obtainResponse();
-            logger.debug(JacksonUtil.fromTransactionToJson(intergateTransaction));
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -69,7 +64,6 @@ public class AttCarrierThread extends Thread {
             try {
 //              String response = restTemplate.getForObject(getUrl(intergateTransaction.getMdn(), String.class);
                 intergateTransaction.setResponse("Processed on " + new Date().toString());
-                logger.debug("Assuming we were able to connect to URL destination.");
                 intergateTransaction.setStatus(Status.PROCESSED);
                 break;
             } catch (ResourceAccessException e) {
@@ -97,16 +91,4 @@ public class AttCarrierThread extends Thread {
         } while (true);
     }
 
-    private String getUrl(String mdn) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(destinationUrl);
-        builder.queryParam("mdn", mdn);
-
-        return builder.build().toUriString();
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        jmsSender = null;
-        restTemplate = null;
-    }
 }

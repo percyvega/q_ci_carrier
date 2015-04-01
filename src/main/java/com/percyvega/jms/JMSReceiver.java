@@ -1,6 +1,6 @@
 package com.percyvega.jms;
 
-import com.percyvega.application.AttCarrierThread;
+import com.percyvega.application.CarrierThread;
 import com.percyvega.model.Carrier;
 import com.percyvega.model.IntergateTransaction;
 import com.percyvega.model.Status;
@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import javax.jms.*;
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -31,40 +32,23 @@ public class JMSReceiver implements MessageListener {
     private QueueReceiver queueReceiver;
     private Queue queue;
 
-    private boolean quit = false;
-    private long count = 0;
+    private long messageCounter = 0;
 
-    public boolean isQuit() {
-        return quit;
-    }
-
-    private static String qcfName;
-    @Value("${jms.qcfName}")
-    public void setQcfName(String qcfName) {
-        this.qcfName = qcfName;
-    }
-
-    private static String queueName;
-    @Value("${jms.sourceQueueName}")
-    public void setQueueName(String queueName) {
-        this.queueName = queueName;
-    }
-
-    private static String providerUrl;
-    @Value("${jms.providerUrl}")
-    public void setProviderUrl(String providerUrl) {
-        this.providerUrl = providerUrl;
-    }
-
-    private static String icfName;
     @Value("${jms.icfName}")
-    public void setIcfName(String icfName) {
-        this.icfName = icfName;
-    }
+    private String icfName;
+
+    @Value("${jms.qcfName}")
+    private String qcfName;
+
+    @Value("${jms.sourceQueueName}")
+    private String queueName;
+
+    @Value("${jms.providerUrl}")
+    private String providerUrl;
 
     public void init() {
         try {
-            Hashtable properties = new Hashtable();
+            Hashtable<String, String> properties = new Hashtable<String, String>();
             properties.put(Context.INITIAL_CONTEXT_FACTORY, icfName);
             properties.put(Context.PROVIDER_URL, providerUrl);
             initialContext = new InitialContext(properties);
@@ -82,28 +66,19 @@ public class JMSReceiver implements MessageListener {
     }
 
     @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-
-        queueReceiver.close();
-        queueSession.close();
-        queueConnection.close();
-    }
-
-    @Override
     public void onMessage(Message msg) {
         try {
-            String msgText;
+            String messageText;
             if (msg instanceof TextMessage) {
-                msgText = ((TextMessage) msg).getText();
+                messageText = ((TextMessage) msg).getText();
             } else {
-                msgText = msg.toString();
+                messageText = msg.toString();
             }
 
-            logger.debug("JMS Message #" + ++count + ": " + msgText);
-            IntergateTransaction intergateTransaction;
+            logger.debug("Received JMS message #" + ++messageCounter + ": " + messageText);
+
             try {
-                intergateTransaction = JacksonUtil.fromJsonToTransaction(msgText);
+                IntergateTransaction intergateTransaction = JacksonUtil.fromJsonToTransaction(messageText);
                 intergateTransaction.setStatus(Status.PROCESSING);
                 processTransaction(intergateTransaction);
             } catch (IOException e) {
@@ -114,11 +89,14 @@ public class JMSReceiver implements MessageListener {
         }
     }
 
+    @Value("${attDestinationUrl}")
+    private String attDestinationUrl;
+
     private void processTransaction(IntergateTransaction intergateTransaction) {
         String carrierName = intergateTransaction.getCarrierName();
         switch (Carrier.getByName(carrierName)) {
             case ATT:
-                new AttCarrierThread(intergateTransaction).start();
+                new CarrierThread(attDestinationUrl, intergateTransaction).start();
                 break;
 //            case SPR:
 //                break;
@@ -138,8 +116,22 @@ public class JMSReceiver implements MessageListener {
     }
 
     @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+
+        queueReceiver.close();
+        queueSession.close();
+        queueConnection.close();
+    }
+
+    @PostConstruct
+    public void postConstruct() {
+        logger.debug(this.toString());
+    }
+
+    @Override
     public String toString() {
-        return "JMSSender [icfName=" + icfName + ", providerUrl=" + providerUrl + ", qcfName=" + qcfName + ", queueName=" + queueName + "]";
+        return "JMSReceiver [icfName=" + icfName + ", providerUrl=" + providerUrl + ", qcfName=" + qcfName + ", queueName=" + queueName + "]";
     }
 
 }
