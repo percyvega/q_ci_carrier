@@ -6,10 +6,10 @@ import java.util.Arrays;
  * Created by pevega on 2/20/2015.
  */
 public enum Status {
-    QUEUED("QUEUED"),
+    NEW("NEW"),
     PICKED_UP("PICKED_UP"),
     PROCESSING("PROCESSING"),
-    PROCESSED("PROCESSED"),
+    COMPLETED("COMPLETED"),
     ERROR("ERROR");
 
     private String name;

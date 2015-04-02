@@ -31,7 +31,7 @@ public class IntergateTransaction {
         this.mdn = mdn;
         this.orderType = "I";
         this.tryCount = 0L;
-        this.status = Status.QUEUED;
+        this.status = Status.NEW;
         this.carrierName = carrier.getName();
         this.creationDate = new Date(System.currentTimeMillis());
         setUpdateDate();

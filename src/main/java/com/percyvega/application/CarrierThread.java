@@ -63,8 +63,8 @@ public class CarrierThread extends Thread {
         do {
             try {
 //              String response = restTemplate.getForObject(getUrl(intergateTransaction.getMdn(), String.class);
-                intergateTransaction.setResponse("Processed on " + new Date().toString());
-                intergateTransaction.setStatus(Status.PROCESSED);
+                intergateTransaction.setResponse("Completed on " + new Date().toString());
+                intergateTransaction.setStatus(Status.COMPLETED);
                 break;
             } catch (ResourceAccessException e) {
                 logger.debug("Destination URL unavailable #" + ++destinationUrlUnavailableCount + ". About to sleep(" + SLEEP_WHEN_UNAVAILABLE_DESTINATION_URL + ").");
