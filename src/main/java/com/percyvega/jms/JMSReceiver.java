@@ -2,7 +2,7 @@ package com.percyvega.jms;
 
 import com.percyvega.application.CarrierThread;
 import com.percyvega.model.Carrier;
-import com.percyvega.model.IntergateTransaction;
+import com.percyvega.model.CarrierInquiry;
 import com.percyvega.model.Status;
 import com.percyvega.util.JacksonUtil;
 import org.slf4j.Logger;
@@ -78,9 +78,9 @@ public class JMSReceiver implements MessageListener {
             logger.debug("Received JMS message #" + ++messageCounter + ": " + messageText);
 
             try {
-                IntergateTransaction intergateTransaction = JacksonUtil.fromJsonToTransaction(messageText);
-                intergateTransaction.setStatus(Status.PROCESSING);
-                processTransaction(intergateTransaction);
+                CarrierInquiry carrierInquiry = JacksonUtil.fromJson(messageText, CarrierInquiry.class);
+                carrierInquiry.setStatus(Status.PROCESSING);
+                process(carrierInquiry);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -92,11 +92,11 @@ public class JMSReceiver implements MessageListener {
     @Value("${attDestinationUrl}")
     private String attDestinationUrl;
 
-    private void processTransaction(IntergateTransaction intergateTransaction) {
-        String carrierName = intergateTransaction.getCarrierName();
+    private void process(CarrierInquiry carrierInquiry) {
+        String carrierName = carrierInquiry.getCarrierName();
         switch (Carrier.getByName(carrierName)) {
             case ATT:
-                new CarrierThread(attDestinationUrl, intergateTransaction).start();
+                new CarrierThread(attDestinationUrl, carrierInquiry).start();
                 break;
 //            case SPR:
 //                break;

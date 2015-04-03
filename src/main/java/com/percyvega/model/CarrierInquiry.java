@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.Date;
 
-public class IntergateTransaction {
+public class CarrierInquiry {
 
     protected Long objid;
 
@@ -24,10 +24,10 @@ public class IntergateTransaction {
 
     private String response;
 
-    public IntergateTransaction() {
+    public CarrierInquiry() {
     }
 
-    public IntergateTransaction(String mdn, Carrier carrier) {
+    public CarrierInquiry(String mdn, Carrier carrier) {
         this.mdn = mdn;
         this.orderType = "I";
         this.tryCount = 0L;
