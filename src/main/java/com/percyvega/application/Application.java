@@ -13,7 +13,7 @@ import java.util.Arrays;
 @Configuration
 @EnableAutoConfiguration
 @ComponentScan("com.percyvega")
-@PropertySource(value = {"application.properties", "sensitive.properties"}, ignoreResourceNotFound = true)
+@PropertySource("application.properties")
 public class Application {
 
     private static final Logger logger = LoggerFactory.getLogger(Application.class);

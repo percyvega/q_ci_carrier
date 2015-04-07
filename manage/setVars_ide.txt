@@ -1,0 +1,6 @@
+--attDestinationUrl=http://localhost:8585/actions/post/
+--jms.qcfName=jms/myConnectionFactory
+--jms.providerUrl=t3://localhost:8001
+--jms.icfName=weblogic.jndi.WLInitialContextFactory
+--jms.sourceQueueName=jms/percyvegaQueue
+--jms.destinationQueueName=jms/percyvegaRespQueue

@@ -65,6 +65,7 @@ Thumbs.db
 *.jks
 
 # sensitive properties
+setVars.sh
 sensitive.properties
 
 
